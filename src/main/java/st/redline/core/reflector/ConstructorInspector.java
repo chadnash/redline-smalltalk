@@ -4,6 +4,8 @@ package st.redline.core.reflector;
 import java.util.HashMap;
 import java.util.Map;
 
+import st.redline.core.DynamicJavaClassAdaptor;
+
 public class ConstructorInspector implements InspectorVisitor {
 
     protected static final Map<String, String> PRIMITIVE_TO_SIGNATURE_TYPE = new HashMap<String, String>();
@@ -28,20 +30,21 @@ public class ConstructorInspector implements InspectorVisitor {
         this.reflector = reflector;
     }
 
-    public void visitBegin(String suffix, String className) {
+    public void visitBegin( String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitEnd(String suffix, String className) {
+    public void visitEnd( String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorsBegin(String suffix, String className) {
+    public void visitConstructorsBegin( String className) {
         constructorsCount = 0;
     }
 
-    public void visitConstructorsEnd(String suffix, String className) {
-        classNameAdaptor = className.substring(className.lastIndexOf('.') + 1) + suffix;
+    public void visitConstructorsEnd( String className) {
+    	String wrappingClassName = DynamicJavaClassAdaptor.fullyQualifiedClassNameForJavaClassWrapperClassNamed(className);
+        classNameAdaptor = wrappingClassName.substring(wrappingClassName.lastIndexOf('.') + 1);
         reflector.append("\n")
                 .append(classNameAdaptor)
                 .append(" class atSelector: #with: put: [ :args || selector |\n")
@@ -59,19 +62,21 @@ public class ConstructorInspector implements InspectorVisitor {
         reflector.usePreviousVisitor();
     }
 
-    public void visitConstructorBegin(String suffix, String className, String constructorName, int parameterCount) {
+    public void visitConstructorBegin( String className, String constructorName, int parameterCount) {
         this.className = className;
-        this.classNameAdaptor = className.substring(className.lastIndexOf('.') + 1) + suffix;
+    	String wrappingClassName = DynamicJavaClassAdaptor.fullyQualifiedClassNameForJavaClassWrapperClassNamed(className);
+        this.classNameAdaptor = wrappingClassName.substring(wrappingClassName.lastIndexOf('.') + 1);
         this.javaClassName = className.replace(".", "/");
         this.javaConstructorName = constructorName.replace(".", "/");
         this.javaArgumentTypes = new String[parameterCount];
         this.methodSymbol.append("with");
+        System.out.println("visitConstructorBegin: " + className + " " + " " + parameterCount + " ");
         reflector.append("\n")
                  .append(classNameAdaptor)
                  .append(" class atSelector: #");
     }
 
-    public void visitConstructorEnd(String suffix, String className, String constructorName, int parameterCount) {
+    public void visitConstructorEnd( String className, String constructorName, int parameterCount) {
         reflector.append("      dup;\n");
         loadConstructorArguments(parameterCount);
         reflector.append("      invokeSpecial: '")
@@ -135,25 +140,34 @@ public class ConstructorInspector implements InspectorVisitor {
         javaArgumentTypes[index] = javaType;
         javaArgumentSignature.append(javaType);
         methodSymbol.append(methodSymbolType(parameterType));
+        System.out.println("chad2>"+methodSymbol.toString());
     }
 
-    public void visitMethodsBegin(String suffix, String name) {
+    public void visitMethodsBegin( String name) {
+ System.out.println("chad7>this"+this);    	
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitMethodsEnd(String suffix, String name) {
+    public void visitMethodsEnd( String name) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitMethodBegin(String suffix, String className, String methodName, int parameterCount, String returnType) {
+    public void visitMethodBegin( String className, String methodName, int parameterCount, String returnType) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitMethodEnd(String suffix, String className, String methodName, int parameterCount, String returnType) {
+    public void visitMethodEnd( String className, String methodName, int parameterCount, String returnType) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
     private Object methodSymbolType(String parameterType) {
+    	
+    	if (parameterType.startsWith("[L")) {
+    		  if (parameterType.indexOf('.') != -1)
+    			  return "ArrayOf" + parameterType.substring(parameterType.lastIndexOf('.') + 1).replace(";", "");
+    		  else
+    			  return "ArrayOf" +PRIMITIVE_TO_SIGNATURE_TYPE.get(parameterType); 
+		}
         if (parameterType.indexOf('.') != -1)
             return parameterType.substring(parameterType.lastIndexOf('.') + 1);
         return PRIMITIVE_TO_SIGNATURE_TYPE.get(parameterType);

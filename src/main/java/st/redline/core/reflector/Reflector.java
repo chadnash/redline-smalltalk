@@ -10,11 +10,11 @@ public class Reflector implements InspectorVisitor {
     private Stack<InspectorVisitor> reflectors;
 
     public static void main(String[] args) throws ClassNotFoundException {
-        System.out.println(new Reflector(args[0], "Adaptor").reflect().result());
+        System.out.println(new Reflector(args[0]).reflect().result());
     }
 
-    public Reflector(String className, String suffix) throws ClassNotFoundException {
-        inspector = new Inspector(className, suffix);
+    public Reflector(String className) throws ClassNotFoundException {
+        inspector = new Inspector(className);
         result = new StringBuilder(1024);
         initializeReflectors();
     }
@@ -43,32 +43,32 @@ public class Reflector implements InspectorVisitor {
         return this;
     }
 
-    public void visitBegin(String suffix, String className) {
-        currentReflector().visitBegin(suffix, className);
+    public void visitBegin( String className) {
+        currentReflector().visitBegin( className);
     }
 
-    public void visitEnd(String suffix, String className) {
-        currentReflector().visitEnd(suffix, className);
+    public void visitEnd( String className) {
+        currentReflector().visitEnd( className);
     }
 
-    public void visitConstructorBegin(String suffix, String className, String constructorName, int parameterCount) {
-        currentReflector().visitConstructorBegin(suffix, className, constructorName, parameterCount);
+    public void visitConstructorBegin( String className, String constructorName, int parameterCount) {
+        currentReflector().visitConstructorBegin( className, constructorName, parameterCount);
     }
 
-    public void visitConstructorsBegin(String suffix, String className) {
-        currentReflector().visitConstructorsBegin(suffix, className);
+    public void visitConstructorsBegin( String className) {
+        currentReflector().visitConstructorsBegin( className);
     }
 
-    public void visitConstructorsEnd(String suffix, String className) {
-        currentReflector().visitConstructorsEnd(suffix, className);
+    public void visitConstructorsEnd( String className) {
+        currentReflector().visitConstructorsEnd( className);
     }
 
     private InspectorVisitor currentReflector() {
         return reflectors.peek();
     }
 
-    public void visitConstructorEnd(String suffix, String className, String constructorName, int parameterCount) {
-        currentReflector().visitConstructorEnd(suffix, className, constructorName, parameterCount);
+    public void visitConstructorEnd( String className, String constructorName, int parameterCount) {
+        currentReflector().visitConstructorEnd( className, constructorName, parameterCount);
     }
 
     public void visitParameterTypesBegin(int length) {
@@ -83,27 +83,30 @@ public class Reflector implements InspectorVisitor {
         currentReflector().visitParameterType(parameterType, index);
     }
 
-    public void visitMethodsBegin(String suffix, String name) {
-        currentReflector().visitMethodsBegin(suffix, name);
+    public void visitMethodsBegin( String name) {
+        currentReflector().visitMethodsBegin( name);
     }
 
-    public void visitMethodsEnd(String suffix, String name) {
-        currentReflector().visitMethodsEnd(suffix, name);
+    public void visitMethodsEnd( String name) {
+        currentReflector().visitMethodsEnd( name);
     }
 
-    public void visitMethodBegin(String suffix, String className, String methodName, int parameterCount, String returnType) {
-        currentReflector().visitMethodBegin(suffix , className, methodName, parameterCount, returnType);
+    public void visitMethodBegin( String className, String methodName, int parameterCount, String returnType) {
+        currentReflector().visitMethodBegin( className, methodName, parameterCount, returnType);
     }
 
-    public void visitMethodEnd(String suffix, String className, String methodName, int parameterCount, String returnType) {
-        currentReflector().visitMethodEnd(suffix , className, methodName, parameterCount, returnType);
+    public void visitMethodEnd( String className, String methodName, int parameterCount, String returnType) {
+        currentReflector().visitMethodEnd( className, methodName, parameterCount, returnType);
     }
 
     public void useConstructorVisitor() {
+System.out.println("in useConstructorVisitor");
         reflectors.push(new ConstructorInspector(this));
     }
 
     public void useMethodVisitor() {
+
+System.out.println("in useMethodVisitor");
         reflectors.push(new MethodInspector(this));
     }
 

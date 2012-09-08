@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import st.redline.core.DynamicJavaClassAdaptor;
+
 public class MethodInspector extends ConstructorInspector {
 
     private boolean hasReturnType;
@@ -14,30 +16,33 @@ public class MethodInspector extends ConstructorInspector {
         super(reflector);
     }
 
-    public void visitMethodsBegin(String suffix, String name) {
+    public void visitMethodsBegin( String name) {
         methodNameDuplicates = new HashMap<String, Integer>();
     }
 
-    public void visitMethodsEnd(String suffix, String name) {
+    public void visitMethodsEnd(String name) {
         reflector.usePreviousVisitor();
         for (Map.Entry<String, Integer> e : methodNameDuplicates.entrySet())
             System.out.println(e.getKey() + " occurred " + e.getValue());
     }
 
-    public void visitMethodBegin(String suffix, String className, String methodName, int parameterCount, String returnType) {
+    public void visitMethodBegin(String className, String methodName, int parameterCount, String returnType) {
         javaArgumentSignature = new StringBuilder();
         methodSymbol = new StringBuilder();
 
         System.out.println("visitMethodBegin: " + className + " " + methodName + " " + parameterCount + " " + returnType);
         this.className = className;
-        this.classNameAdaptor = className.substring(className.lastIndexOf('.') + 1) + suffix;
+        String wrappingClassName = DynamicJavaClassAdaptor.fullyQualifiedClassNameForJavaClassWrapperClassNamed(className);
+        this.classNameAdaptor = wrappingClassName.substring(wrappingClassName.lastIndexOf('.') + 1) ;
         this.javaClassName = className.replace(".", "/");
         this.javaArgumentTypes = new String[parameterCount];
         this.hasReturnType = !returnType.equals("void");
+  System.out.println("chad1>"+methodName);
+  System.out.flush();
         this.methodSymbol.append(methodName);
         reflector.append("\n")
                  .append(classNameAdaptor)
-                 .append(" class atSelector: #");
+                 .append(" atSelector: #"); //.append(" class atSelector: #");
 
         int count = 1;
         String methodNameForDuplicateTracking = methodName + (parameterCount == 0 ? "" : ":");
@@ -46,9 +51,10 @@ public class MethodInspector extends ConstructorInspector {
         methodNameDuplicates.put(methodNameForDuplicateTracking, count);
     }
 
-    public void visitMethodEnd(String suffix, String className, String methodName, int parameterCount, String returnType) {
-        if (!hasReturnType)
-            reflector.append("  ^ self.\n");
+    public void visitMethodEnd(String className, String methodName, int parameterCount, String returnType) {
+        /*if (!hasReturnType)
+            reflector.append("  ^ self.\n");*/
+    	reflector.append("  ^ self.\n");
         reflector.append("].\n");
     }
 
@@ -63,19 +69,19 @@ public class MethodInspector extends ConstructorInspector {
                 .append("\n");
     }
 
-    public void visitConstructorBegin(String suffix, String className, String constructorName, int parameterCount) {
+    public void visitConstructorBegin(String className, String constructorName, int parameterCount) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorEnd(String suffix, String className, String constructorName, int parameterCount) {
+    public void visitConstructorEnd(String className, String constructorName, int parameterCount) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorsBegin(String suffix, String className) {
+    public void visitConstructorsBegin(String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorsEnd(String suffix, String className) {
+    public void visitConstructorsEnd(String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 }

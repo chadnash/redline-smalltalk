@@ -15,10 +15,9 @@ public class Inspector {
     }
 
     private final Class theClass;
-    private final String suffix;
 
-    public Inspector(String className, String suffix) throws ClassNotFoundException {
-        this.suffix = suffix;
+    public Inspector(String className) throws ClassNotFoundException {
+       
         theClass = loadClassToInspect(className);
     }
 
@@ -27,13 +26,14 @@ public class Inspector {
     }
 
     public void inspectWith(InspectorVisitor inspectorVisitor) {
-        inspectorVisitor.visitBegin(suffix, theClass.getName());
+        inspectorVisitor.visitBegin( theClass.getName());
         inspectConstructorsWith(inspectorVisitor);
         inspectMethodsConstructorsWith(inspectorVisitor);
-        inspectorVisitor.visitEnd(suffix, theClass.getName());
+        inspectorVisitor.visitEnd(theClass.getName());
     }
 
     private void inspectMethodsConstructorsWith(InspectorVisitor inspectorVisitor) {
+  System.out.println("chad6>inspectorVisitor="+inspectorVisitor);
         inspectMethodsBegin(inspectorVisitor);
         Method[] methods = theClass.getMethods();
         for (int i = 0; i < methods.length; i++)
@@ -48,17 +48,17 @@ public class Inspector {
             return;
         Class[] parameterTypes = method.getParameterTypes();
         String returnType = method.getReturnType().getName();
-        inspectorVisitor.visitMethodBegin(suffix, theClass.getName(), methodName, parameterTypes.length, returnType);
+        inspectorVisitor.visitMethodBegin( theClass.getName(), methodName, parameterTypes.length, returnType);
         inspectParameterTypesWith(parameterTypes, inspectorVisitor);
-        inspectorVisitor.visitMethodEnd(suffix, theClass.getName(), methodName, parameterTypes.length, returnType);
+        inspectorVisitor.visitMethodEnd( theClass.getName(), methodName, parameterTypes.length, returnType);
     }
 
     private void inspectMethodsEnd(InspectorVisitor inspectorVisitor) {
-        inspectorVisitor.visitMethodsEnd(suffix, theClass.getName());
+        inspectorVisitor.visitMethodsEnd( theClass.getName());
     }
 
     private void inspectMethodsBegin(InspectorVisitor inspectorVisitor) {
-        inspectorVisitor.visitMethodsBegin(suffix, theClass.getName());
+        inspectorVisitor.visitMethodsBegin( theClass.getName());
     }
 
     private void inspectConstructorsWith(InspectorVisitor inspectorVisitor) {
@@ -71,18 +71,18 @@ public class Inspector {
     }
 
     private void inspectConstructorsBegin(InspectorVisitor inspectorVisitor) {
-        inspectorVisitor.visitConstructorsBegin(suffix, theClass.getName());
+        inspectorVisitor.visitConstructorsBegin( theClass.getName());
     }
 
     private void inspectConstructorsEnd(InspectorVisitor inspectorVisitor) {
-        inspectorVisitor.visitConstructorsEnd(suffix, theClass.getName());
+        inspectorVisitor.visitConstructorsEnd( theClass.getName());
     }
 
     private void inspectConstructor(Constructor constructor, InspectorVisitor inspectorVisitor) {
         Class[] parameterTypes = constructor.getParameterTypes();
-        inspectorVisitor.visitConstructorBegin(suffix, theClass.getName(), constructor.getName(), parameterTypes.length);
+        inspectorVisitor.visitConstructorBegin( theClass.getName(), constructor.getName(), parameterTypes.length);
         inspectParameterTypesWith(parameterTypes, inspectorVisitor);
-        inspectorVisitor.visitConstructorEnd(suffix, theClass.getName(), constructor.getName(), parameterTypes.length);
+        inspectorVisitor.visitConstructorEnd( theClass.getName(), constructor.getName(), parameterTypes.length);
     }
 
     private void inspectParameterTypesWith(Class[] parameterTypes, InspectorVisitor inspectorVisitor) {

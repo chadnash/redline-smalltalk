@@ -48,10 +48,10 @@ public class PrimObjectTest {
 		assertEquals(5, newInstance.attributes.length);
 	}
 
-	@Test (expected = IllegalStateException.class)
+	/* @Test (expected = IllegalStateException.class)
 	public void shouldThrowExceptionWhenBlockToBeCompiledNotFound() {
 		new PrimObject().block("st/redline/core/Thing$M1", null);
-	}
+	} */
 
 	@Test
 	public void shouldCreateInstanceOfExistingBlockWhenBlockCalledWithNameOfRegisteredBlock() {

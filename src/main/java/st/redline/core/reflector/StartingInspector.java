@@ -1,6 +1,8 @@
 /* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline.core.reflector;
 
+import st.redline.core.DynamicJavaClassAdaptor;
+
 public class StartingInspector extends NoOpInspector {
 
     private final Reflector reflector;
@@ -9,47 +11,49 @@ public class StartingInspector extends NoOpInspector {
         this.reflector = reflector;
     }
 
-    public void visitBegin(String suffix, String fullClassName) {
-        reflector.append("\"@: " + fullClassName + suffix + "\"\n")
-                 .append("Object < #" + className(fullClassName, suffix) + ".\n");
+    public void visitBegin( String fullClassName) {
+    	String wrappingClassName = DynamicJavaClassAdaptor.fullyQualifiedClassNameForJavaClassWrapperClassNamed(fullClassName);
+        reflector.append("\"@: "+ wrappingClassName + "\"\n") // ensure never attempt to use a restricted pacage like java.util and also ensure I never have a namespace clash
+                 .append("Object < #" + className(fullClassName) + ".\n");
     }
 
-    private String className(String fullclassName, String suffix) {
-        return fullclassName.substring(fullclassName.lastIndexOf('.') + 1) + suffix;
+    private String className(String fullClassName) {
+    	String wrappingClassName = DynamicJavaClassAdaptor.fullyQualifiedClassNameForJavaClassWrapperClassNamed(fullClassName);
+        return wrappingClassName.substring(wrappingClassName.lastIndexOf('.') + 1) ;
     }
 
-    public void visitEnd(String suffix, String fullClassName) {
+    public void visitEnd( String fullClassName) {
         reflector.append("\n")
-                 .append(className(fullClassName, suffix))
+                 .append(className(fullClassName))
                  .append(" initialize.\n");
     }
 
-    public void visitConstructorsBegin(String suffix, String className) {
+    public void visitConstructorsBegin( String className) {
         this.reflector.useConstructorVisitor();
-        this.reflector.visitConstructorsBegin(suffix, className);
+        this.reflector.visitConstructorsBegin( className);
     }
 
-    public void visitConstructorsEnd(String suffix, String className) {
+    public void visitConstructorsEnd( String className) {
         this.reflector.useConstructorVisitor();
-        this.reflector.visitConstructorsEnd(suffix, className);
+        this.reflector.visitConstructorsEnd( className);
     }
 
-    public void visitConstructorBegin(String suffix, String className, String constructorName, int parameterCount) {
+    public void visitConstructorBegin( String className, String constructorName, int parameterCount) {
         this.reflector.useConstructorVisitor();
-        this.reflector.visitConstructorBegin(suffix, className, constructorName, parameterCount);
+        this.reflector.visitConstructorBegin( className, constructorName, parameterCount);
     }
 
-    public void visitMethodsBegin(String suffix, String className) {
+    public void visitMethodsBegin( String className) {
         this.reflector.useMethodVisitor();
-        this.reflector.visitMethodsBegin(suffix, className);
+        this.reflector.visitMethodsBegin( className);
     }
 
-    public void visitMethodBegin(String suffix, String className, String constructorName, int parameterCount, String returnType) {
-        this.reflector.visitMethodBegin(suffix, className, constructorName, parameterCount, returnType);
+    public void visitMethodBegin( String className, String constructorName, int parameterCount, String returnType) {
+        this.reflector.visitMethodBegin( className, constructorName, parameterCount, returnType);
     }
 
-    public void visitMethodsEnd(String suffix, String className) {
+    public void visitMethodsEnd( String className) {
         this.reflector.useMethodVisitor();
-        this.reflector.visitMethodsEnd(suffix, className);
+        this.reflector.visitMethodsEnd( className);
     }
 }

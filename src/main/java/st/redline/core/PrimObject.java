@@ -577,24 +577,33 @@ public class PrimObject {
         ArrayList<PrimObject> args = (ArrayList<PrimObject>) context.argumentAt(0).javaValue();
         return string(new BaseSignatureBuilder(prefix, args).build());
     }
-
+public static StringBuffer chadStringBuf = new StringBuffer();
     void adaptJavaObject(String className) {
-        String name = className.substring(1);
+//
+    chadStringBuf.append("chad3>className="+className ); chadStringBuf.append("\n");
+    chadStringBuf.append("*******************\n");
+ //System.exit(1);
+        String name = className.substring(1); 
         if (!CLASSES.containsKey(name)) {
-            String suffix = "Adaptor";
-            new DynamicJavaClassAdaptor(name, suffix).build();
+        	
+            new DynamicJavaClassAdaptor(name).build();
+            String wrappingClassName = DynamicJavaClassAdaptor.fullyQualifiedClassNameForJavaClassWrapperClassNamed(name);
             // map dynamic class to original class.
-            CLASSES.put(name, CLASSES.get(name + suffix));
+  chadStringBuf.append("chad3>name="+name  + " CLASSES.get(name + suffix)=" + CLASSES.get(wrappingClassName) + " chad3>className="+className); chadStringBuf.append("\n");
+            try { CLASSES.put(name, CLASSES.get(wrappingClassName));} catch (NullPointerException e) { System.out.println(chadStringBuf.toString());  System.out.flush();}
         }
     }
 
     PrimObject resolveObject(String name) {
+chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
         if (CLASSES.containsKey(name))
             return CLASSES.get(name);
         if (Character.isUpperCase(name.charAt(0))) {
             String fullyQualifiedName = packageFor(name);
+  chadStringBuf.append("chad4>fullyQualifiedName="+fullyQualifiedName);chadStringBuf.append("\n");
             if (fullyQualifiedName != null) {
                 if (fullyQualifiedName.startsWith("#")) {
+                	System.out.println("chad4>fullyQualifiedNam2e="+fullyQualifiedName);chadStringBuf.append("\n");
                     adaptJavaObject(fullyQualifiedName);
                     return resolveObject(fullyQualifiedName.substring(1));
                 } else
@@ -603,6 +612,7 @@ public class PrimObject {
         }
         // It is expected the loading of an object results in the registering of
         // a Smalltalk class in the class registry (CLASSES).
+  chadStringBuf.append("chad4> CALL LOAD");chadStringBuf.append("\n");
         PrimObject primObject = loadObject(name);
         if (primObject != null) {
             if (CLASSES.containsKey(name))

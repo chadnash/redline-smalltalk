@@ -3,27 +3,27 @@ package st.redline.core.reflector;
 
 public class NoOpInspector implements InspectorVisitor {
 
-    public void visitBegin(String suffix, String className) {
+    public void visitBegin( String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitEnd(String suffix, String className) {
+    public void visitEnd( String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorBegin(String suffix, String className, String constructorName, int parameterCount) {
+    public void visitConstructorBegin( String className, String constructorName, int parameterCount) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorEnd(String suffix, String className, String constructorName, int parameterCount) {
+    public void visitConstructorEnd( String className, String constructorName, int parameterCount) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorsBegin(String suffix, String className) {
+    public void visitConstructorsBegin( String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitConstructorsEnd(String suffix, String className) {
+    public void visitConstructorsEnd( String className) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
@@ -39,19 +39,19 @@ public class NoOpInspector implements InspectorVisitor {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitMethodsBegin(String suffix, String name) {
+    public void visitMethodsBegin( String name) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitMethodsEnd(String suffix, String name) {
+    public void visitMethodsEnd( String name) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitMethodBegin(String suffix, String className, String methodName, int parameterCount, String returnType) {
+    public void visitMethodBegin( String className, String methodName, int parameterCount, String returnType) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
-    public void visitMethodEnd(String suffix, String className, String methodName, int parameterCount, String returnType) {
+    public void visitMethodEnd( String className, String methodName, int parameterCount, String returnType) {
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 }

@@ -83,6 +83,7 @@ public class PrimObjectClass extends PrimObject {
     }
 
     public Map<String, PrimObject> methods() {
+    	//System.out.println("chad8>"+javaValue);
         return (Map<String, PrimObject>) javaValue;
     }
 
