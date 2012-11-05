@@ -13,7 +13,7 @@ public class PrimObjectMetaclass extends PrimObjectClass {
 
     static final int DEFAULT_ATTRIBUTE_COUNT = 1;  // for name, superclass etc etc
     static final int NAME_INDEX = SUPERCLASS_INDEX + 1;
-    static final PrimObjectMetaclass METACLASS;
+    public static final PrimObjectMetaclass METACLASS;
 
     static {
         BOOTSTRAPPING = true;
@@ -111,10 +111,17 @@ public class PrimObjectMetaclass extends PrimObjectClass {
 
     public String packageFor(String name) {
         String packageName;
-        if (imports != null && (packageName = imports.get(name)) != null)
+        // System.out.println("PrimObjectMetaclass packageFor this=" + this + " name=" +name + " imports=" +imports);
+        
+        if (imports != null && (packageName = imports.get(name)) != null) {
+        	// System.out.println("end PrimObjectMetaclass packageName=" + packageName);
             return packageName;
-        if (superclass() != null && (packageName = superclass().packageFor(name)) != null)
+       	}
+        if (superclass() != null && (packageName = superclass().packageFor(name)) != null){
+        	// System.out.println("end PrimObjectMetaclass packageName=" + packageName);
             return packageName;
+       	}
+        // System.out.println("end PrimObjectMetaclass packageName=" +  IMPORTS.get(name));
         return IMPORTS.get(name);
     }
 

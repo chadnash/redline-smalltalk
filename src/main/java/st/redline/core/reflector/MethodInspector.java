@@ -37,8 +37,7 @@ public class MethodInspector extends ConstructorInspector {
         this.javaClassName = className.replace(".", "/");
         this.javaArgumentTypes = new String[parameterCount];
         this.hasReturnType = !returnType.equals("void");
-  System.out.println("chad1>"+methodName);
-  System.out.flush();
+
         this.methodSymbol.append(methodName);
         reflector.append("\n")
                  .append(classNameAdaptor)

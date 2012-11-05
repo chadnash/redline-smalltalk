@@ -3,6 +3,8 @@
 Object < #TestSuite.
 
 - run
+    "Transcript show: 'Running JavaAdaptingTest Suite'; cr.
+    JavaAdaptingTest new test." " currently JavaAdaptingTest fails" 
     Transcript show: 'Running ArrayTest Suite'; cr.
     ArrayTest new test.
     Transcript show: 'Running BooleanTest Suite'; cr.

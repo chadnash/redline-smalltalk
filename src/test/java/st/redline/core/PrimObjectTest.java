@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class PrimObjectTest {
+public class PrimObjectTest	 {
 
 	@Test
 	public void shouldCallInvokeOnReceiverWhenP81Called() {
@@ -65,12 +65,12 @@ public class PrimObjectTest {
 
 	@Test
 	public void shouldRaiseRedlineExceptionWhenObjectCantBeResolved() {
-		try {
+	try {
 			new PrimObject().resolveObject("Foo");
 		} catch (RedlineException e) {
 			assertTrue(e.getCause() instanceof ClassNotFoundException);
 			assertEquals("java.lang.ClassNotFoundException: Foo", e.getCause().toString());
-		}
+		} 
 	}
 
 	@Test

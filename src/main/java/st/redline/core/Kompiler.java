@@ -1,6 +1,9 @@
 /* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline.core;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -22,8 +25,18 @@ public class Kompiler {
         this.ignoreCompilerErrors = ignoreCompilerErrors;
     }
 
+    static int filesCount = 0;
     protected byte[] compile() {
-        return compileSource(preprocessSource());
+    	 byte[] rtn =  compileSource(preprocessSource());
+    	 try{
+            String outputFileName = "C:\\Users\\7\\redline-smalltalk\\f"+filesCount +".chad.class"; filesCount++;
+            FileOutputStream f = new FileOutputStream(outputFileName); 
+            f.write(rtn);
+            f.close();
+            System.out.println("wrote " + outputFileName);
+            }
+          catch (IOException e ) { throw new RedlineException(e);}
+        return rtn;
     }
 
     private byte[] compileSource(Source source) {

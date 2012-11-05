@@ -5,9 +5,10 @@ Object < #Collection.
 "instance creation"
 
 + with: anObject
-    ^ self new
-      add: anObject;
-      yourself.
+      |c| 
+      c := self new.
+      c add: anObject.
+      ^c.
 
 + with: anObject with: anObject2
     ^ self new

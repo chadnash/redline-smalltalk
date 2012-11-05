@@ -17,8 +17,10 @@ import st.redline.compiler.Block;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,7 +60,14 @@ public class PrimObject {
     }
 
     public String toString() {
-        return (javaValue != null && !(javaValue instanceof Map)) ? javaValue.toString() : super.toString();
+        if (!(javaValue instanceof Map)) 
+    	{
+    		return "St-Object-class=" + attributes[CLASS_INDEX] + " javaValue="+ javaValue;
+    	}
+    	else
+    	{ 
+    		return super.toString();  // james WHY WAS MAP excluded
+    	}
     }
 
     public static boolean bootstrapping(boolean flag) {
@@ -151,14 +160,15 @@ public class PrimObject {
     public static PrimObject array(int size) {
         List<PrimObject> array = new ArrayList<PrimObject>();
         PrimObject initialElement = BOOTSTRAPPING ? PRIM_NIL : NIL;
-        array.add(initialElement); // we add NIL at index 0 because smalltalk indexes start at 1.
-        while (array.size() < size + 1)
+        //rray.add(initialElement); // we add NIL at index 0 because smalltalk indexes start at 1. // no longer do this as we npw ofset the indexes
+        while (array.size() < size)
             array.add(initialElement);
         PrimObject object = instanceOf("Array").with(array);
     //        System.out.println("** array ** " + object + " -> " + array);
         return object;
     }
 
+   // JAMES I thought Strings are collectons chad
     public static PrimObject string(Object javaValue) {
         return instanceOf("String").with(javaValue);
     }
@@ -170,7 +180,15 @@ public class PrimObject {
     public static PrimObject number(BigDecimal javaValue) {
         return instanceOf("Integer").with(javaValue);
     }
-
+    public static PrimObject number(Integer javaValue) {
+        return instanceOf("Integer").with( new BigDecimal(javaValue));
+    }
+    public static PrimObject number(Long javaValue) {
+        return instanceOf("Integer").with(new BigDecimal(javaValue));
+    }
+    public static PrimObject booleane(Object javaValue) {
+        return instanceOf("Character").with(javaValue);
+    }
     public static PrimObject character(Object javaValue) {
         return instanceOf("Character").with(javaValue);
     }
@@ -193,6 +211,7 @@ public class PrimObject {
     }
 
     static PrimObject instanceOf(String type) {
+    	// System.out.println(.println("in instanceOf type =" + type);
         return BOOTSTRAPPING ? new PrimObject() : PrimObjectMetaclass.METACLASS.resolveObject(type).perform("new");
     }
 
@@ -224,6 +243,7 @@ public class PrimObject {
     }
 
     public PrimObject variableAt(String name) {
+    	// System.out.println("variableAt name =" +  name );
         int index = cls().indexOfVariable(name);
         if (index != 0)
             return attributes[index];
@@ -523,19 +543,21 @@ public class PrimObject {
         // create a new Character with value anArg.
         return character(Character.valueOf((char) context.intArgumentAt(0)));
     }
-
+    
+//Smalltalk Array holds a JAva Array list of the same size with indexes shifted by 1
     public PrimObject p220(PrimObject receiver, PrimContext context) {
         // answer the size of the ArrayedCollection
         if (receiver.javaValue() == null)
             return number(0);
-        return number(new BigDecimal(((ArrayList) receiver.javaValue()).size() - 1));
+        System.out.println("in p220 (size) size= "+((ArrayList) receiver.javaValue()).size());
+        return number(new BigDecimal(((ArrayList) receiver.javaValue()).size()));
     }
 
     public PrimObject p221(PrimObject receiver, PrimContext context) {
         // answer a new array of the size requested.
         PrimObject array = p70(receiver, context);
         ArrayList<PrimObject> list = new ArrayList<PrimObject>();
-        for (int i = 0; i < context.intArgumentAt(0) + 1; i++)
+        for (int i = 0; i < context.intArgumentAt(0); i++)
             list.add(PRIM_NIL);
         array.javaValue(list);
         return array;
@@ -548,7 +570,8 @@ public class PrimObject {
         int offset = context.intArgumentAt(0);
         if (offset == 0)
             throw new IllegalStateException("An at: of index zero (0) is invalid.");
-        return ((ArrayList<PrimObject>) receiver.javaValue()).get(offset);
+        //System.out.println("in p222 offset=" +  offset + " value=" + ((ArrayList<PrimObject>) receiver.javaValue()).get(offset-1) );
+        return ((ArrayList<PrimObject>) receiver.javaValue()).get(offset-1);
     }
 
     public PrimObject p223(PrimObject receiver, PrimContext context) {
@@ -557,7 +580,7 @@ public class PrimObject {
             throw new IllegalStateException("Receiver is expected to have an ArrayList javaValue but doesn't.");
         int offset = context.intArgumentAt(0);
         PrimObject anObject = context.argumentAt(1);
-        ((ArrayList<PrimObject>) receiver.javaValue()).set(offset, anObject);
+        ((ArrayList<PrimObject>) receiver.javaValue()).set(offset-1, anObject);
         return anObject;
     }
 
@@ -577,58 +600,93 @@ public class PrimObject {
         return receiver.includesSelector(selector) ? PrimObject.TRUE : PrimObject.FALSE;
     }
 
-    public PrimObject p227(PrimObject receiver, PrimContext context) {
+    public PrimObject p227(PrimObject receiver, PrimContext context) { 	//JAmes probably obsolete or should hove code from smalltalkSelectorForMethodThatWrapsRightJavaMethodFor
         // selectorFromArgs: - iterate array and return a string representation of argument types.
         String prefix = (String) context.argumentAt(1).javaValue();
         ArrayList<PrimObject> args = (ArrayList<PrimObject>) context.argumentAt(0).javaValue();
         return string(new BaseSignatureBuilder(prefix, args).build());
     }
-public static StringBuffer chadStringBuf = new StringBuffer();
-    void adaptJavaObject(String className) {
-//
-    chadStringBuf.append("chad3>className="+className ); chadStringBuf.append("\n");
-    chadStringBuf.append("*******************\n");
- //System.exit(1);
-        String name = className.substring(1); 
-        if (!CLASSES.containsKey(name)) {
+    public PrimObject p228(PrimObject receiver, PrimContext context) {
+        // add: anObject and answer anObject.
+        if (!(receiver.javaValue() instanceof ArrayList))
+            throw new IllegalStateException("Receiver is expected to have an ArrayList javaValue but doesn't.");
+        PrimObject anObject = context.argumentAt(0);
+        ((ArrayList<PrimObject>) receiver.javaValue()).add(anObject);
+        return anObject;
+    }
+    public PrimObject p229(PrimObject receiver, PrimContext context) {
+        // answer a new instance of the receiver with an arraylist in its javaValue .
+        PrimObject newInstance = p70(receiver, context);
+        ArrayList<PrimObject> list = new ArrayList<PrimObject>();
+        newInstance.javaValue(list);
+        return newInstance;
+    }
+    
+    static Set<PrimObject> adaptorClasses = new HashSet<PrimObject>();
+
+	public static boolean classIsAnAdaptorClass(PrimObject smalltalkClass) {return adaptorClasses.contains(smalltalkClass);} 
+    PrimObject adaptorClassForJavaClassNamed(String fullyQualifiedJavaClassName) { 
+        if (!CLASSES.containsKey(fullyQualifiedJavaClassName)) {
         	
-            new DynamicJavaClassAdaptor(name).build();
-            String wrappingClassName = DynamicJavaClassAdaptor.fullyQualifiedClassNameForJavaClassWrapperClassNamed(name);
-            // map dynamic class to original class.
-  chadStringBuf.append("chad3>name="+name  + " CLASSES.get(name + suffix)=" + CLASSES.get(wrappingClassName) + " chad3>className="+className); chadStringBuf.append("\n");
-            try { CLASSES.put(name, CLASSES.get(wrappingClassName));} catch (NullPointerException e) { System.out.println(chadStringBuf.toString());  System.out.flush();}
+            new DynamicJavaClassAdaptor(fullyQualifiedJavaClassName).build();
+            String adaptorClassName = SmallTalkGeneratorOfAdaptorOfAJavaClass.fullyQualifiedNameOfSmallTalkClassToUseToAdaptJavaClass(fullyQualifiedJavaClassName);
+            PrimObject adaptorClass = resolveObject(adaptorClassName);
+            CLASSES.put(fullyQualifiedJavaClassName, adaptorClass);
+            adaptorClasses.add(adaptorClass);
+            return  adaptorClass;
+        }
+        else
+        {
+        	return CLASSES.get(fullyQualifiedJavaClassName);
         }
     }
 
-    PrimObject resolveObject(String name) {
-chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
-        if (CLASSES.containsKey(name))
-            return CLASSES.get(name);
+
+    public PrimObject resolveObject(String name) {
+    // System.out.println("in resolveObject this=" + this+ " name =" + name);
+    	PrimObject rtn;
+        if (CLASSES.containsKey(name)) {
+        	rtn = CLASSES.get(name);
+        	// System.out.println("end resolveObject rtn=" + rtn);
+        	return rtn;
+        }
+        if (name.startsWith("#")) {
+        	String fullyQualifiedJavaClassName = name.substring(1);
+        	PrimObject adaptorClass = adaptorClassForJavaClassNamed(fullyQualifiedJavaClassName); 
+        	// System.out.println("end resolveObject adaptorClass=" + adaptorClass);
+        	return adaptorClass;
+        } 
         if (Character.isUpperCase(name.charAt(0))) {
             String fullyQualifiedName = packageFor(name);
-  chadStringBuf.append("chad4>fullyQualifiedName="+fullyQualifiedName);chadStringBuf.append("\n");
-            if (fullyQualifiedName != null) {
-                if (fullyQualifiedName.startsWith("#")) {
-                	System.out.println("chad4>fullyQualifiedNam2e="+fullyQualifiedName);chadStringBuf.append("\n");
-                    adaptJavaObject(fullyQualifiedName);
-                    return resolveObject(fullyQualifiedName.substring(1));
-                } else
-                    return resolveObject(fullyQualifiedName);
-            }
+            // System.out.println("in resolveObject fullyQualifiedName =" + fullyQualifiedName);
+         
+           if (fullyQualifiedName != null) {
+        	   rtn = resolveObject(fullyQualifiedName);
+           		// System.out.println("end resolveObject rtn=" + rtn);
+           		return rtn;
+           }
         }
+              
         // It is expected the loading of an object results in the registering of
         // a Smalltalk class in the class registry (CLASSES).
-  chadStringBuf.append("chad4> CALL LOAD");chadStringBuf.append("\n");
+        //NOTE the CODE below copes with this not being the case which is odd????? 
         PrimObject primObject = loadObject(name);
         if (primObject != null) {
             if (CLASSES.containsKey(name))
-                return CLASSES.get(name);
-            return primObject;
+            {
+            	rtn =  CLASSES.get(name);
+            	// System.out.println("end resolveObject rtn=" + rtn);
+            	return rtn;
+            }
+            rtn = primObject;
+        	// System.out.println("end resolveObject rtn=" + rtn);
+        	return rtn;
         }
         throw new IllegalStateException("Line should never be reached.");
     }
 
     PrimObject loadObject(String name) {
+    	 //System.out.println("in loadObject this=" + this+ " name =" + name);
         try {
             return (PrimObject) Class.forName(name, true, classLoader()).newInstance();
         } catch (Exception e) {
@@ -646,6 +704,8 @@ chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
 
     public String packageFor(String name) {
         PrimObject cls = cls();
+        //dump(this);
+        // System.out.println("packageFor this=" + this + " name=" +name + " cls=" +cls);
         if (cls != null)
             return cls.packageFor(name);
         return null;
@@ -656,6 +716,7 @@ chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
     // expensive (compared to not doing it).
 
     public PrimObject perform(String selector) {
+    	// System.out.println("in  perform(String selector) " + selector + " this=" + this);
         return perform0(selector);
     }
 
@@ -666,7 +727,7 @@ chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
     public PrimObject perform(PrimObject arg1, String selector) {
         return perform0(selector, arg1);
     }
-
+  
     public PrimObject perform(PrimObject arg1, PrimObject selector) {
         return perform0((String) selector.javaValue(), arg1);
     }
@@ -676,6 +737,7 @@ chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
     }
 
     public PrimObject perform(PrimObject arg1, PrimObject arg2, String selector) {
+    	// System.out.println("in perform(PrimObject arg1, PrimObject arg2, String selector) " + selector + " this=" + this + " arg1=" + arg1 + " arg2=" +arg2);
         return perform0(selector, arg1, arg2);
     }
 
@@ -708,8 +770,14 @@ chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
     }
 
     PrimObject perform0(String selector, PrimObject ... arguments) {
+      	// System.out.println("in perform0(String selector, PrimObject ... arguments) selector=" + selector + " this=" + this + " arguments=" + arguments);
+      	//for(PrimObject arg : arguments )
+      	//{
+      	//	System.out.println("in perform0(String selector, PrimObject ... arguments) arg=" +arg);
+      	//}
         return perform0(attributes[CLASS_INDEX], selector, arguments);
     }
+  
 
     PrimObject perform0s(PrimContext context, String selector, PrimObject ... arguments) {
         return perform0(context.lookupClass.superclass(), selector, arguments);
@@ -721,14 +789,26 @@ chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
     }
 
     PrimObject perform0(PrimObject foundInClass, String selector, PrimObject ... arguments) {
+    	// System.out.println("in perform0(PrimObject foundInClass, String selector, PrimObject ... arguments) " + selector + " this=" + this + " arguments=" + arguments +" foundInClass="+foundInClass);
         PrimObject cls = foundInClass;
         while (!cls.includesSelector(selector))
-            cls = cls.superclass();
+        {
+        	cls = cls.superclass();
+        	// System.out.println("in perform0(PrimObject foundInClass, String selector, PrimObject ... arguments) cls="+cls);
+        }
+            
         return apply(cls.methodFor(selector), cls, selector, arguments);
     }
 
     PrimObject apply(PrimObject method, PrimObject foundInClass, String selector, PrimObject ... arguments) {
-        return method.invoke(this, new PrimContext(this, foundInClass, selector, arguments));
+    	System.out.println("in apply selector=" + selector + " this=" + this +" class=" + this.getClass());
+    	if(arguments.length>0) {System.out.println("in apply arguments[0]=" +  arguments[0]);}
+    	if(arguments.length>1) {System.out.println("in apply  arguments[1]=" +  arguments[1]);}
+    	if(arguments.length>2) {System.out.println("in apply  arguments[1]=" +  arguments[2]);}
+    	if(arguments.length>3) {System.out.println("in apply  arguments[1]=" +  arguments[3]);}
+    	PrimObject rtn =  method.invoke(this, new PrimContext(this, foundInClass, selector, arguments));
+    	System.out.println("end apply rtn=" + rtn +" selector=" + selector + " this=" + this +" class=" + this.getClass());
+    	return rtn;
     }
 
     protected PrimObject invoke(PrimObject receiver, PrimContext context) {
@@ -746,12 +826,14 @@ chadStringBuf.append("chad4>name="+name);chadStringBuf.append("\n");
     public PrimObject superclass() {
         return this;
     }
-
+    
     public Object javaValue() {
         return javaValue;
     }
 
     public PrimObject javaValue(Object javaValue) {
+    	// System.out.println(" in javaValue javaValue=" + javaValue + " this="+ this);
+    	//if (!BOOTSTRAPPING && javaValue.getClass().getName().contains("TestAdaptor")  ) { System.out.println("&&&&&&&&&&&&& TestAdaptor held in " + this + " which is of class " +((PrimObjectMetaclass)this.cls()).name() );}
         this.javaValue = javaValue;
         return this;
     }

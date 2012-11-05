@@ -69,6 +69,7 @@ public class PrimObjectClass extends PrimObject {
 
     public String packageFor(String name) {
         PrimObject cls = cls();
+        System.out.println("PrimObjectClass packageFor this=" + this + " name=" +name + " cls=" +cls);
         if (cls != null)
             cls.packageFor(name);
         return null;

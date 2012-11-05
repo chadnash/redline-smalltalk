@@ -22,7 +22,7 @@ TestCase < #ArrayTest.
     lastElement := 1.
     passes := 0.
     array do: [ :each |  
-      self assertTrue: (each == lastElement) withMessage: 'should be equal'.
+      self assertTrue: (each == lastElement) withMessage: ' should be equal '.
       lastElement := each + 1.
       passes := passes + 1.
     ].

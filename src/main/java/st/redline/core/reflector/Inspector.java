@@ -33,7 +33,6 @@ public class Inspector {
     }
 
     private void inspectMethodsConstructorsWith(InspectorVisitor inspectorVisitor) {
-  System.out.println("chad6>inspectorVisitor="+inspectorVisitor);
         inspectMethodsBegin(inspectorVisitor);
         Method[] methods = theClass.getMethods();
         for (int i = 0; i < methods.length; i++)

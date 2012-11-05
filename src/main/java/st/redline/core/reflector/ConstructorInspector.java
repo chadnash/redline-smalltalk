@@ -129,7 +129,7 @@ public class ConstructorInspector implements InspectorVisitor {
                 .append(length == 0 ? " " : " :args |")
                 .append("| obj |\n  obj := ")
                 .append(isNew ? "super new.\n" : "self new.\n")
-                .append("  JVM temp: 0;\n      new: '")
+                .append("  JVM atTemp: 0;\n      new: '")
                 .append(javaClassName)
                 .append("';\n");
     }
@@ -140,11 +140,10 @@ public class ConstructorInspector implements InspectorVisitor {
         javaArgumentTypes[index] = javaType;
         javaArgumentSignature.append(javaType);
         methodSymbol.append(methodSymbolType(parameterType));
-        System.out.println("chad2>"+methodSymbol.toString());
+      
     }
 
-    public void visitMethodsBegin( String name) {
- System.out.println("chad7>this"+this);    	
+    public void visitMethodsBegin( String name) {  	
         throw new IllegalStateException("This inspector should not be getting this.");
     }
 
