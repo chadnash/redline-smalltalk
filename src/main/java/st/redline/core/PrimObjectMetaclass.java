@@ -23,6 +23,7 @@ public class PrimObjectMetaclass extends PrimObjectClass {
 
     Map<String, String> imports;
     PrimObject sendMessagesResult;
+    String fqn;
 
     public static PrimObjectMetaclass basicSubclassOf(PrimObjectMetaclass superMeta) {
         PrimObjectMetaclass newMetaclass = new PrimObjectMetaclass();
@@ -58,6 +59,22 @@ public class PrimObjectMetaclass extends PrimObjectClass {
         if (name().javaValue == null)
             return super.toString();
         return (String) name().javaValue;
+    }
+
+    public void fqn(String fqn) {
+        this.fqn = fqn;
+    }
+
+    public String fqn() {
+        return fqn;
+    }
+
+    public Map<String, String> imports() {
+        return imports;
+    }
+
+    public void imports(Map<String, String> imports) {
+        this.imports = imports;
     }
 
     public void sendMessagesResult(PrimObject result) {

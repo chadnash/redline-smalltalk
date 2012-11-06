@@ -16,19 +16,17 @@ import st.redline.compiler.Block;
 
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PrimObject {
 
     public static final ThreadLocal<Stack<String>> PACKAGE_REGISTRY = new ThreadLocal<Stack<String>>();
+    public static final ThreadLocal<Map<String, PrimObjectMetaclass>> EIGENCLASS_REGISTRY = new ThreadLocal<Map<String, PrimObjectMetaclass>>();
     static {
         PACKAGE_REGISTRY.set(new Stack<String>());
+        EIGENCLASS_REGISTRY.set(new HashMap<String, PrimObjectMetaclass>());
     }
     public static final Map<String, PrimObject> CLASSES = new ConcurrentHashMap<String, PrimObject>();
     static final Map<String, PrimObject> INTERNED_SYMBOLS = new ConcurrentHashMap<String, PrimObject>();
@@ -606,15 +604,17 @@ public class PrimObject {
         ArrayList<PrimObject> args = (ArrayList<PrimObject>) context.argumentAt(0).javaValue();
         return string(new BaseSignatureBuilder(prefix, args).build());
     }
-    public PrimObject p228(PrimObject receiver, PrimContext context) {
-        // add: anObject and answer anObject.
-        if (!(receiver.javaValue() instanceof ArrayList))
-            throw new IllegalStateException("Receiver is expected to have an ArrayList javaValue but doesn't.");
-        PrimObject anObject = context.argumentAt(0);
-        ((ArrayList<PrimObject>) receiver.javaValue()).add(anObject);
-        return anObject;
-    }
-    public PrimObject p229(PrimObject receiver, PrimContext context) {
+
+	public PrimObject p228(PrimObject receiver, PrimContext context) {
+	        // fullyQualifiedName
+	        if (receiver instanceof PrimObjectMetaclass) {
+	            PrimObjectMetaclass cls = (PrimObjectMetaclass) receiver.cls();
+	            return string(cls.fqn());
+	        }
+	        return PrimObject.NIL;
+	}
+
+    public PrimObject p229(PrimObject receiver, PrimContext context) { // chad->james i HAVE ADDED THIS
         // answer a new instance of the receiver with an arraylist in its javaValue .
         PrimObject newInstance = p70(receiver, context);
         ArrayList<PrimObject> list = new ArrayList<PrimObject>();
@@ -622,6 +622,15 @@ public class PrimObject {
         return newInstance;
     }
     
+    
+    public PrimObject p230(PrimObject receiver, PrimContext context) {  // chad->james i HAVE ADDED THIS
+        // add: anObject and answer anObject.
+        if (!(receiver.javaValue() instanceof ArrayList))
+            throw new IllegalStateException("Receiver is expected to have an ArrayList javaValue but doesn't.");
+        PrimObject anObject = context.argumentAt(0);
+        ((ArrayList<PrimObject>) receiver.javaValue()).add(anObject);
+        return anObject;
+    }
     static Set<PrimObject> adaptorClasses = new HashSet<PrimObject>();
 
 	public static boolean classIsAnAdaptorClass(PrimObject smalltalkClass) {return adaptorClasses.contains(smalltalkClass);} 
@@ -639,7 +648,17 @@ public class PrimObject {
         {
         	return CLASSES.get(fullyQualifiedJavaClassName);
         }
+    }   
+    void adaptJavaObject(String className) { this is from james I may have moved it
+        String name = className.substring(1);
+        if (!CLASSES.containsKey(name)) {
+            String suffix = "Adaptor";
+            new DynamicJavaClassAdaptor(name, suffix).build();
+            // map dynamic class to original class.
+            CLASSES.put(name, CLASSES.get(name + suffix));
+        }
     }
+    
 
 
     public PrimObject resolveObject(String name) {

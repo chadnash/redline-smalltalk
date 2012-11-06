@@ -6,5 +6,5 @@ SequenceableCollection < #OrderedCollection.
       <primitive: 229>
 
 - add: anObject
-      <primitive: 228>
+      <primitive: 230>
 
