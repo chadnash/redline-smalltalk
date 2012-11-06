@@ -820,13 +820,13 @@ public class PrimObject {
     }
 
     PrimObject apply(PrimObject method, PrimObject foundInClass, String selector, PrimObject ... arguments) {
-    	System.out.println("in apply selector=" + selector + " this=" + this +" class=" + this.getClass());
-    	if(arguments.length>0) {System.out.println("in apply arguments[0]=" +  arguments[0]);}
-    	if(arguments.length>1) {System.out.println("in apply  arguments[1]=" +  arguments[1]);}
-    	if(arguments.length>2) {System.out.println("in apply  arguments[1]=" +  arguments[2]);}
-    	if(arguments.length>3) {System.out.println("in apply  arguments[1]=" +  arguments[3]);}
+    	//System.out.println("in apply selector=" + selector + " this=" + this +" class=" + this.getClass());
+    	//if(arguments.length>0) {System.out.println("in apply arguments[0]=" +  arguments[0]);}
+    	//if(arguments.length>1) {System.out.println("in apply  arguments[1]=" +  arguments[1]);}
+    	//if(arguments.length>2) {System.out.println("in apply  arguments[1]=" +  arguments[2]);}
+    	//if(arguments.length>3) {System.out.println("in apply  arguments[1]=" +  arguments[3]);}
     	PrimObject rtn =  method.invoke(this, new PrimContext(this, foundInClass, selector, arguments));
-    	System.out.println("end apply rtn=" + rtn +" selector=" + selector + " this=" + this +" class=" + this.getClass());
+    	//System.out.println("end apply rtn=" + rtn +" selector=" + selector + " this=" + this +" class=" + this.getClass());
     	return rtn;
     }
 

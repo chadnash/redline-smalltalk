@@ -28,14 +28,14 @@ public class Kompiler {
     static int filesCount = 0;
     protected byte[] compile() {
     	 byte[] rtn =  compileSource(preprocessSource());
-    	 try{
+    	/* try{
             String outputFileName = "C:\\Users\\7\\redline-smalltalk\\f"+filesCount +".chad.class"; filesCount++;
             FileOutputStream f = new FileOutputStream(outputFileName); 
             f.write(rtn);
             f.close();
             System.out.println("wrote " + outputFileName);
             }
-          catch (IOException e ) { throw new RedlineException(e);}
+          catch (IOException e ) { throw new RedlineException(e);} */
         return rtn;
     }
 

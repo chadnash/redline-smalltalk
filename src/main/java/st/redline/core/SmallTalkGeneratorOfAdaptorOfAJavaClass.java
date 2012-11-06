@@ -198,7 +198,7 @@ public class SmallTalkGeneratorOfAdaptorOfAJavaClass
 	}
 	static boolean smalltalkObjectIsAnInstanceOfAJavaAdaptorClass(PrimObject smalltalkObject)
 	{
-		System.out.println("********************* in smalltalkObjectIsAnInstanceOfAJavaAdaptorClass classname=>"+((PrimObjectMetaclass) smalltalkObject.cls()).name() + "<");
+		//System.out.println("********************* in smalltalkObjectIsAnInstanceOfAJavaAdaptorClass classname=>"+((PrimObjectMetaclass) smalltalkObject.cls()).name() + "<");
 		return PrimObject.classIsAnAdaptorClass(smalltalkObject.cls());
 		
 	}
@@ -252,10 +252,10 @@ public class SmallTalkGeneratorOfAdaptorOfAJavaClass
 	public static Object javaObjectForSmalltalkObject(PrimObject smalltalkObject)
     {
 		
-    	System.out.println("in javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
+    	//System.out.println("in javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
 		if (smalltalkObjectIsAnInstanceOfAJavaAdaptorClass(smalltalkObject))
 		{
-			System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
+			//System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
     		return smalltalkObject.javaValue();
 		}
 		else if (smalltalkObject.javaValue.getClass().isArray()) 
@@ -268,7 +268,7 @@ public class SmallTalkGeneratorOfAdaptorOfAJavaClass
 	        		newArr[i]=javaObjectForSmalltalkObject(p);
 	        	}
 	
-	    		System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
+	    		//System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
 	        	return newArr;
     		
     	}
@@ -291,18 +291,18 @@ public class SmallTalkGeneratorOfAdaptorOfAJavaClass
 	        		char c = (Character) e;
 	        		b.append(c);
 	        	}
-	    		System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
+	    		//System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
 	    		return b.toString();
 	    	}
 			else
 			{
-				System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
+				//System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
 	    		return newList;
 			}
     	}
     	else
     	{ 
-    		System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
+    		//System.out.println("end javaObjectForSmalltalkObject smalltalkObject=" + smalltalkObject);
     		return smalltalkObject.javaValue();
     	}
     	
