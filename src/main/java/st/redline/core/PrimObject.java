@@ -649,7 +649,8 @@ public class PrimObject {
         	return CLASSES.get(fullyQualifiedJavaClassName);
         }
     }   
-    void adaptJavaObject(String className) { this is from james I may have moved it
+   /* chad->james : james you added this but I could not find caller
+    void adaptJavaObject(String className) {
         String name = className.substring(1);
         if (!CLASSES.containsKey(name)) {
             String suffix = "Adaptor";
@@ -658,7 +659,7 @@ public class PrimObject {
             CLASSES.put(name, CLASSES.get(name + suffix));
         }
     }
-    
+    */
 
 
     public PrimObject resolveObject(String name) {

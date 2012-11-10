@@ -1,6 +1,10 @@
 /* Redline Smalltalk, Copyright (c) James C. Ladd. All rights reserved. See LICENSE in the root of this distribution */
 package st.redline.core;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -105,6 +109,7 @@ public class PrimObjectTest	 {
 
 	@Test
 	public void variableAtShouldCallResolveObject() {
+		try {   
 		PrimObject primObject = new PrimObject();
 		PrimObjectClass primObjectClass = mock(PrimObjectClass.class);
 		when(primObjectClass.indexOfVariable("Thing")).thenReturn(0);
@@ -112,6 +117,10 @@ public class PrimObjectTest	 {
 		PrimObject spy = spy(primObject);
 		spy.variableAt("Thing");
 		verify(spy).resolveObject("Thing");
+		}
+		catch (Throwable e) {
+			try {PrintStream f = new PrintStream(new FileOutputStream("c:\\Users\\7\\redline-smalltalk\\x2.txt")); e.printStackTrace(f); } catch (FileNotFoundException h) {throw new RuntimeException(h);}
+			throw new RuntimeException("in variableAtShouldCallResolveObject");}
 	}
 
 	@Test
